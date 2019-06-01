@@ -1,0 +1,8 @@
+language: java
+services:
+- docker
+script:
+- cd .cicd/ && chmod +x build.sh && ./build.sh
+before_install:
+- openssl aes-256-cbc -k "$CRYPT_PASSPHARSE" -in .cicd/deploy_key.enc -out ~/.ssh/deploy_key -d
+- chmod 600 ~/.ssh/deploy_key
