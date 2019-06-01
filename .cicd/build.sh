@@ -6,7 +6,10 @@ set -x
 
 mkdir -p docker-build/service
 cp build/libs/*.jar docker-build/service/service.jar
+chmod +x .cicd/docker/scripts/*
+cp .cicd/docker/scripts/* docker-build/service/
 cp .cicd/docker/Dockerfile docker-build/
+
 
 export PROJECT_VERSION=`./gradlew properties | grep "^version:" | awk '{print $2}'`
 export BUILD_TIMESTAMP=`date '+%Y%m%d%H%M%S'`
