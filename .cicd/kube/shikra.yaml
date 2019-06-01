@@ -1,0 +1,99 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: shikra
+  labels:
+    app: shikra
+spec:
+  type: ClusterIP
+  ports:
+  - name: shikra
+    port: 8080
+  selector:
+    app: shikra
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: shikra
+  labels:
+    app: shikra
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: shikra
+    spec:
+      imagePullSecrets:
+      - name: aliyun-cr
+      containers:
+      - name: shikra
+        image: $IMAGE_NAME
+        # command: []
+        # args: []
+        resources:
+          requests:
+            cpu: 500m
+            memory: 512Mi
+        env:
+          - name: spring.datasource.schemaUsername
+            valueFrom:
+              secretKeyRef:
+                name: mysql
+                key: username
+          - name: spring.datasource.schemaPassword
+            valueFrom:
+              secretKeyRef:
+                name: mysql
+                key: password
+        envFrom:
+        - configMapRef:
+            name: shikra
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - mountPath: /storage/shikra/assets
+          name: data-volume
+      volumes:
+       - name: data-volume
+         hostPath:
+           path: /storage/kube-shikra
+           type: DirectoryOrCreate
+#      - name: data-volume
+#        persistentVolumeClaim:
+#          claimName: shikra
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: shikra
+  # annotations:
+  #     nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        backend:
+          serviceName: shikra
+          servicePort: 8080
+    host: shikra.fundwit.com
+#  - http:
+#      paths:
+#      - path: /shikra
+#        backend:
+#          serviceName: shikra
+#          servicePort: 8080
+#    host: www.xracoon.com
+#---
+#apiVersion: v1
+#kind: PersistentVolumeClaim
+#metadata:
+#  name: shikra
+#spec:
+#  accessModes:
+#  - ReadWriteOnce
+#  resources:
+#    requests:
+#      storage: "10Gi"

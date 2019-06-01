@@ -1,0 +1,43 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+auth:
+  channels:
+    basic:
+      realm: Shikra
+
+spring:
+  jackson:
+    serialization:
+      indent_output: false
+      write_dates_as_timestamps: true
+      fail_on_empty_beans: false
+    deserialization:
+      fail_on_unknown_properties: false
+    parser:
+      allow_unquoted_control_chars: true
+      allow_single_quotes: true
+
+  flyway:
+    locations: ["classpath:/db/migration"]
+
+  mail:
+    host: smtp.qq.com
+    username: xracoon@qq.com
+    password: qphdzvckozjldafh
+    properties.mail.smtp:
+      auth: true
+      starttls.enable: true
+      starttls.required: true
+
+management:
+  endpoints:
+    enabled-by-default: false
+  endpoint:
+    info.enabled: true
+    health.enabled: true
+
+info:
+  info2222: aaaabbbb
