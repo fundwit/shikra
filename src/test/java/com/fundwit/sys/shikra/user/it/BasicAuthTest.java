@@ -13,14 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.Base64Utils;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.time.Duration;
 
 import static org.junit.Assert.assertEquals;
@@ -140,24 +137,25 @@ public class BasicAuthTest {
 //        });
 //    }
 
-    @Test
-    public void testLoginForm() {
-        RegisterRequest registerRequest = new RegisterRequest();
+//    @Test
+//    public void testLoginForm() {
+//        RegisterRequest registerRequest = new RegisterRequest();
+//
+//        registerRequest.setUsername("test2");
+//        registerRequest.setNickname("Test2");
+//        registerRequest.setEmail("test2@test.com");
+//        registerRequest.setPassword("abcd1234");
+//        registerRequest.setPasswordConfirm("abcd1234");
+//
+//        this.registry(registerRequest);
+//
+//        client.post().uri("/auth/login").contentType(MediaType.APPLICATION_FORM_URLENCODED)
+//                .syncBody("username="+URLEncoder.encode(registerRequest.getNickname(), Charset.forName("UTF-8"))
+//                        +"&password="+URLEncoder.encode(registerRequest.getPassword(), Charset.forName("UTF-8")))
+//                .exchange()
+//                .expectStatus().isFound().expectHeader().valueEquals(HttpHeaders.LOCATION, "/");
+//    }
 
-        registerRequest.setUsername("test2");
-        registerRequest.setNickname("Test2");
-        registerRequest.setEmail("test2@test.com");
-        registerRequest.setPassword("abcd1234");
-        registerRequest.setPasswordConfirm("abcd1234");
-
-        this.registry(registerRequest);
-
-        client.post().uri("/auth/login").contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .syncBody("username="+URLEncoder.encode(registerRequest.getNickname(), Charset.forName("UTF-8"))
-                        +"&password="+URLEncoder.encode(registerRequest.getPassword(), Charset.forName("UTF-8")))
-                .exchange()
-                .expectStatus().isFound().expectHeader().valueEquals(HttpHeaders.LOCATION, "/");
-    }
 //
 //    @Test
 //    public void testAccessSuccessAfterLogin(){
