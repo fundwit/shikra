@@ -11,7 +11,7 @@ cp .cicd/docker/Dockerfile docker-build/
 export PROJECT_VERSION=`./gradlew properties | grep "^version:" | awk '{print $2}'`
 export BUILD_TIMESTAMP=`date '+%Y%m%d%H%M%S'`
 export BUILD_VERSION=${PROJECT_VERSION}.${BUILD_TIMESTAMP:2:6}.${TRAVIS_COMMIT:0:6}
-export IMAGE_NAME=registry.cn-beijing.aliyuncs.com/fundwit/owlet:$BUILD_VERSION
+export IMAGE_NAME=registry.cn-beijing.aliyuncs.com/fundwit/shikra:$BUILD_VERSION
 
 docker login registry.cn-beijing.aliyuncs.com -u $DOCKER_ACCOUNT -p $DOCKER_PASSWORD
 
