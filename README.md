@@ -1,0 +1,2 @@
+[![Build Status](https://travis-ci.org/fundwit/shikra.svg?branch=master)](https://travis-ci.org/fundwit/shikra)
+[![codecov](https://codecov.io/gh/fundwit/shikra/branch/master/graph/badge.svg)](https://codecov.io/gh/fundwit/shikra)
