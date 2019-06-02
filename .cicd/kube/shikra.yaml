@@ -55,6 +55,10 @@ spec:
         volumeMounts:
         - mountPath: /storage/shikra/assets
           name: data-volume
+        livenessProbe:
+          httpGet:
+            path: /health/liveness
+            port: 8080
       volumes:
        - name: data-volume
          hostPath:

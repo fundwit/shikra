@@ -46,7 +46,7 @@ public class SecurityConfiguration {
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
          http.authorizeExchange()
-                .pathMatchers("/auth/**",
+                .pathMatchers("/auth/**", "/health/**", "/build", "/build/**",
                         "/static/**",
                         "/register", "/register/**",
                         "/verifier/**",
