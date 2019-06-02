@@ -1,6 +1,8 @@
 package com.fundwit.sys.shikra.user.it;
 
+import com.fundwit.sys.shikra.user.persistence.po.Identity;
 import com.fundwit.sys.shikra.user.persistence.po.User;
+import com.fundwit.sys.shikra.user.persistence.repository.IdentityRepository;
 import com.fundwit.sys.shikra.user.persistence.repository.UserRepository;
 import com.fundwit.sys.shikra.user.pojo.RegisterRequest;
 import com.fundwit.sys.shikra.user.service.CaptchaService;
@@ -20,8 +22,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import java.io.IOException;
 import java.time.Duration;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static com.fundwit.sys.shikra.user.service.UserServiceImpl.LOCAL_CREDENTIAL;
+import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -31,6 +33,8 @@ public class RegisterControllerTest {
     private int port;
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    IdentityRepository identityRepository;
     @Autowired
     private CaptchaService captchaService;
 
@@ -65,6 +69,17 @@ public class RegisterControllerTest {
             assertEquals(registerRequest.getUsername(), user.getUsername());
             assertEquals(registerRequest.getNickname(), user.getNickname());
             assertEquals(registerRequest.getEmail(), user.getEmail());
+
+            // verfify Identity
+            Identity identity = identityRepository.findByUserIdAndType(user.getId(), LOCAL_CREDENTIAL);
+            assertEquals(LOCAL_CREDENTIAL, identity.getType());
+            assertEquals(user.getId(), identity.getUserId());
+            assertNotNull(identity.getCreateAt());
+            assertNotNull(identity.getCredential());
+            assertNotNull(identity.getId());
+            assertNotNull(identity.getLastUpdateAt());
+            assertNull(identity.getExternalId());
+            assertEquals(identity.getCreateAt(), identity.getLastUpdateAt());
         });
     }
 

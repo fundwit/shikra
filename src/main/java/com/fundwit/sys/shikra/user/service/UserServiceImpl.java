@@ -27,7 +27,7 @@ import java.util.UUID;
 @Service
 public class UserServiceImpl implements UserService{
     private static final Logger LOG = LoggerFactory.getLogger(UserServiceImpl.class);
-    public static final String lOCAL_CREDENTIAL = "lOCAL_CREDENTIAL";
+    public static final String LOCAL_CREDENTIAL = "LOCAL_CREDENTIAL";
 
     private IdWorker idWorker;
     private UserRepository userRepository;
@@ -61,7 +61,7 @@ public class UserServiceImpl implements UserService{
     @Override
     public Mono<LoginUser> authenticate(String principal, String password) throws AuthenticationException {
         User user = this.userRepository.findByUsernameOrEmail(principal, principal).orElseThrow(()-> new AuthenticationServiceException("user not found"));
-        Identity identity = identityRepository.findByUserIdAndType(user.getId(), lOCAL_CREDENTIAL);
+        Identity identity = identityRepository.findByUserIdAndType(user.getId(), LOCAL_CREDENTIAL);
         String  obfuscatedPassword = this.passwordObfuscator.obfuscate(password, user.getSalt());
         if(identity==null || !passwordEncoder.matches(obfuscatedPassword, identity.getCredential())) {
             throw new AuthenticationServiceException("authentication failed");
@@ -96,7 +96,7 @@ public class UserServiceImpl implements UserService{
         Identity identity = new Identity();
         identity.setId(idWorker.nextId());
         identity.setUserId(savedUser.getId());
-        identity.setType(lOCAL_CREDENTIAL);
+        identity.setType(LOCAL_CREDENTIAL);
         String  obfuscatedPassword = this.passwordObfuscator.obfuscate(registerRequest.getPassword(), user.getSalt());
         identity.setCredential(this.passwordEncoder.encode(obfuscatedPassword));
 

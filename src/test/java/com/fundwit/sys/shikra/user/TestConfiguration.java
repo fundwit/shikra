@@ -15,7 +15,6 @@ import org.springframework.test.context.TestPropertySource;
 @Configuration
 @TestPropertySource(properties = {"application.test=true"})
 public class TestConfiguration {
-
     @Bean
     @Primary
     public EmailService mockEmailService(){

@@ -1,8 +1,6 @@
-package com.fundwit.sys.shikra;
+package com.fundwit.sys.shikra.database;
 
 import com.zaxxer.hikari.HikariDataSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -20,11 +18,11 @@ public class DatabaseConfiguration {
     @Configuration
     @ConditionalOnExpression("environment['spring.datasource.url']!=null && !${application.test:false}")  // spring.datasource 已配置并且 application.test != true
     public static class NonEmbeddedDataSource {
-        private static final Logger logger = LoggerFactory.getLogger(NonEmbeddedDataSource.class);
+
         @Bean
         @ConfigurationProperties(prefix = "spring.datasource.hikari")
-        public DataSource dataSource(DataSourceProperties properties) {
-            DatabaseUtils.initializeDatabase(properties);
+        public DataSource dataSource(DataSourceProperties properties, DatabaseManager databaseManager) {
+            databaseManager.initializeDatabase(properties);
             HikariDataSource dataSource = properties.initializeDataSourceBuilder().type(HikariDataSource.class)
                     .build();
             if (StringUtils.hasText(properties.getName())) {
