@@ -35,10 +35,15 @@ public class DatabaseUtils {
         try {
             String username = !StringUtils.isEmpty(properties.getSchemaUsername()) ?
                     properties.getSchemaUsername() : properties.getUsername();
-            String password = !StringUtils.isEmpty(properties.getSchemaUsername()) ?
+            String password = !StringUtils.isEmpty(properties.getSchemaPassword()) ?
                     properties.getSchemaPassword() : properties.getPassword();
 
+            DriverManager.setLoginTimeout(2);
             conn = DriverManager.getConnection(jdbcBaseUrl, username, password);
+            if(conn == null) {
+                throw new RuntimeException("failed to get database connection for initialize");
+            }
+
             DatabaseUtils.execute(String.format(DEFAULT_CREATE_DATABASE_STATEMENT, databaseName), conn);
 
             if(properties.getUsername()!=null && properties.getSchemaUsername()!=null && !properties.getUsername().equals(properties.getSchemaUsername())) {
@@ -50,7 +55,9 @@ public class DatabaseUtils {
             throw new RuntimeException(e);
         }finally {
             try {
-                conn.close();
+                if(conn!=null && !conn.isClosed()) {
+                    conn.close();
+                }
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
