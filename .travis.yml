@@ -1,0 +1,23 @@
+language: java
+jdk:
+- openjdk11
+services:
+- docker
+script:
+- chmod +x .cicd/build.sh
+- .cicd/build.sh
+before_install:
+- openssl aes-256-cbc -k "$CRYPT_PASSPHARSE" -in .cicd/deploy_key.enc -out ~/.ssh/deploy_key -d
+- chmod 600 ~/.ssh/deploy_key
+- chmod +x gradlew
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
+
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
