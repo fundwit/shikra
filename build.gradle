@@ -1,6 +1,7 @@
 plugins {
     id 'org.springframework.boot' version '2.1.4.RELEASE'
     id 'java'
+    id 'jacoco'
 }
 
 apply plugin: 'io.spring.dependency-management'
@@ -42,7 +43,9 @@ dependencies {
 }
 
 // code coverage
-apply plugin: 'jacoco'
+jacoco {
+    toolVersion = "0.8.3"
+}
 jacocoTestReport {
     reports {
         xml.enabled true
