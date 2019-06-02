@@ -3,7 +3,6 @@ plugins {
     id 'java'
 }
 
-
 apply plugin: 'io.spring.dependency-management'
 
 group = 'com.fundwit.sys.shikra'
@@ -41,3 +40,13 @@ dependencies {
         exclude module: 'spring-boot-starter-web'
     }
 }
+
+// code coverage
+apply plugin: 'jacoco'
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        html.enabled false
+    }
+}
+check.dependsOn jacocoTestReport
