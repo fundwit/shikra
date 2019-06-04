@@ -4,18 +4,13 @@ jdk:
 services:
 - docker
 script:
-- chmod +x .cicd/build.sh .cicd/deploy.sh
+- chmod +x .cicd/build.sh
 - .cicd/build.sh
 before_install:
 - openssl aes-256-cbc -k "$CRYPT_PASSPHARSE" -in .cicd/deploy_key.enc -out ~/.ssh/deploy_key -d
 - chmod 600 ~/.ssh/deploy_key
 - chmod +x gradlew
 
-deploy:
-- provider: script
-  script: bash .cicd/deploy.sh
-  on:
-    branch: master
 #- provider: script
 #  script: bash .cicd/deploy.sh
 #  on:
