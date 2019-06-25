@@ -102,6 +102,7 @@ public class UserServiceImpl implements UserService{
 
         identity.setCreateAt(new Date());
         identity.setLastUpdateAt(identity.getCreateAt());
+        identity.setExternalId(null);
 
         Identity savedIdentity = identityRepository.saveAndFlush(identity);
         Assert.notNull(savedIdentity);

@@ -81,7 +81,9 @@ public class BasicAuthTest {
         String header = Base64Utils.encodeToString((registerRequest.getUsername()+":"+registerRequest.getPassword()).getBytes("UTF-8"));
 
         client.get().uri("/users/self").header(HttpHeaders.AUTHORIZATION, "Basic "+header).exchange()
-                .expectStatus().isOk().expectBody(User.class).value(user -> {
+                .expectStatus().isOk()
+                .expectHeader().valueEquals("user", registerRequest.getUsername())
+                .expectBody(User.class).value(user -> {
             assertNotNull(user);
             assertNotNull(user.getId());
             assertEquals(registerRequest.getUsername(), user.getUsername());

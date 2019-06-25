@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -14,16 +16,16 @@ import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.DelegatingServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
-import org.springframework.security.web.server.authentication.HttpBasicServerAuthenticationEntryPoint;
-import org.springframework.security.web.server.authentication.ServerAuthenticationEntryPointFailureHandler;
-import org.springframework.security.web.server.authentication.ServerHttpBasicAuthenticationConverter;
-import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
+import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
+import org.springframework.security.web.server.authentication.*;
+import org.springframework.security.web.server.context.ServerSecurityContextRepository;
+import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
 import org.springframework.security.web.server.util.matcher.MediaTypeServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Configuration
 public class SecurityConfiguration {
@@ -31,7 +33,7 @@ public class SecurityConfiguration {
     private List<AuthenticationProvider> authenticationProviders;
 
     @Value("${auth.channels.basic.realm}")
-    private String basicAuthRealm = "Realm";
+    private String basicAuthRealm;
 
     @Bean
     public ReactiveAuthenticationManagerAdapter reactiveAuthenticationManagerAdapter(ProviderManager providerManager){
@@ -41,6 +43,11 @@ public class SecurityConfiguration {
     @Bean
     public ProviderManager providerManager(){
         return new ProviderManager(authenticationProviders);
+    }
+
+    @Bean
+    public ServerSecurityContextRepository serverSecurityContextRepository(){
+        return new WebSessionServerSecurityContextRepository();
     }
 
     @Bean
@@ -54,39 +61,59 @@ public class SecurityConfiguration {
                 .permitAll()
                 .anyExchange().authenticated().and()
                 .csrf().disable();
-
-         this.addCustomBasicAuthenticationWebFilter(http, providerManager());
-
+         this.addBasicAuthentication(http, providerManager());
          return http.build();
     }
 
-    private void addCustomBasicAuthenticationWebFilter(ServerHttpSecurity http, AuthenticationManager authenticationManager){
+    private void addBasicAuthentication(ServerHttpSecurity http, AuthenticationManager authenticationManager){
         AuthenticationWebFilter authenticationFilter = new AuthenticationWebFilter(new ReactiveAuthenticationManagerAdapter(authenticationManager));
         authenticationFilter.setServerAuthenticationConverter(new ServerHttpBasicAuthenticationConverter());
-        authenticationFilter.setSecurityContextRepository(NoOpServerSecurityContextRepository.getInstance());
+        authenticationFilter.setSecurityContextRepository(serverSecurityContextRepository());
+        authenticationFilter.setAuthenticationSuccessHandler(new JwtTokenSignAuthenticationSuccessHandler());
 
-        HttpBasicServerAuthenticationEntryPoint entryPoint = new HttpBasicServerAuthenticationEntryPoint();
-        if(!StringUtils.isNullOrEmpty(basicAuthRealm)) {
-            entryPoint.setRealm(basicAuthRealm);
-        }
-        authenticationFilter.setAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler(entryPoint));
-
-        MediaTypeServerWebExchangeMatcher restMatcher = new MediaTypeServerWebExchangeMatcher(
-                MediaType.APPLICATION_ATOM_XML,
-                MediaType.APPLICATION_FORM_URLENCODED, MediaType.APPLICATION_JSON,
-                MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_XML,
-                MediaType.MULTIPART_FORM_DATA, MediaType.TEXT_XML);
-        restMatcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
-
-        // WARNING 覆盖了 ServerHttpSecurity 的 exceptionHandling().authenticationEntryPoint 配置
-        List<DelegatingServerAuthenticationEntryPoint.DelegateEntry> entryPoints = new ArrayList<>();
-        entryPoints.add(new DelegatingServerAuthenticationEntryPoint.DelegateEntry(restMatcher, entryPoint));
-
-        DelegatingServerAuthenticationEntryPoint result = new DelegatingServerAuthenticationEntryPoint(entryPoints);
-        result.setDefaultEntryPoint(entryPoints.get(entryPoints.size() - 1).getEntryPoint());
-        http.exceptionHandling().authenticationEntryPoint(result);
+        ServerAuthenticationEntryPoint authenticationEntryPoint = serverAuthenticationEntryPoint();
+        authenticationFilter.setAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler(authenticationEntryPoint));
+        http.exceptionHandling().authenticationEntryPoint(serverAuthenticationEntryPoint());
 
         http.httpBasic().disable();
         http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.HTTP_BASIC);
     }
+
+    private ServerAuthenticationEntryPoint serverAuthenticationEntryPoint(){
+        DelegatingServerAuthenticationEntryPoint delegatingEntryPoint =
+                new DelegatingServerAuthenticationEntryPoint(
+                        basicEntryPointDelegate(),
+                        statusEntryPointDelegate()
+                        // redirectEntryPointDelegate()
+                );
+        delegatingEntryPoint.setDefaultEntryPoint(basicEntryPointDelegate().getEntryPoint());
+        return delegatingEntryPoint;
+    }
+
+    private DelegatingServerAuthenticationEntryPoint.DelegateEntry basicEntryPointDelegate() {
+        HttpBasicServerAuthenticationEntryPoint basicEntryPoint = new HttpBasicServerAuthenticationEntryPoint();
+        if(!StringUtils.isNullOrEmpty(basicAuthRealm)) {
+            basicEntryPoint.setRealm(basicAuthRealm);
+        }
+        ServerWebExchangeMatcher basicMatcher = exchange -> Optional.ofNullable(exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION))
+                .filter(v->v.toUpperCase().startsWith("basic "))
+                .map(v-> ServerWebExchangeMatcher.MatchResult.match()).orElse(ServerWebExchangeMatcher.MatchResult.notMatch());
+        return new DelegatingServerAuthenticationEntryPoint.DelegateEntry(basicMatcher, basicEntryPoint);
+    }
+
+    private DelegatingServerAuthenticationEntryPoint.DelegateEntry statusEntryPointDelegate() {
+        HttpStatusServerEntryPoint basicEntryPoint = new HttpStatusServerEntryPoint(HttpStatus.UNAUTHORIZED);
+        MediaTypeServerWebExchangeMatcher restMatcher = new MediaTypeServerWebExchangeMatcher(
+                MediaType.APPLICATION_JSON);
+        restMatcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
+        return new DelegatingServerAuthenticationEntryPoint.DelegateEntry(restMatcher, basicEntryPoint);
+    }
+
+//    private DelegatingServerAuthenticationEntryPoint.DelegateEntry redirectEntryPointDelegate() {
+//        RedirectServerAuthenticationEntryPoint redirectEntryPoint = new RedirectServerAuthenticationEntryPoint("/auth/login");
+//        MediaTypeServerWebExchangeMatcher restMatcher = new MediaTypeServerWebExchangeMatcher(
+//                MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_OCTET_STREAM);
+//        restMatcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
+//        return new DelegatingServerAuthenticationEntryPoint.DelegateEntry(restMatcher, redirectEntryPoint);
+//    }
 }

@@ -16,10 +16,9 @@ import java.time.Duration;
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(properties = {
-        "build.version=test-build-version",
         "info.build.path=classpath:/testBuildInfo.properties"
 })
-public class BuildInfoControllerTest {
+public class BuildInfoControllerTest2 {
     protected WebTestClient client;
     @LocalServerPort
     private int port;
@@ -34,7 +33,7 @@ public class BuildInfoControllerTest {
 
     @Test
     public void testBuildInfo() throws IOException {
-        String versionName = "test-build-version";
+        String versionName = "test1111";
         client.get().uri("/build").exchange()
                 .expectStatus().isOk()
                 .expectBody(BuildInfoProperties.class)

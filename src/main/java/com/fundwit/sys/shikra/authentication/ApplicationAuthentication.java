@@ -22,7 +22,7 @@ public class ApplicationAuthentication implements Authentication {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return authorities;
     }
 
     @Override
@@ -32,7 +32,7 @@ public class ApplicationAuthentication implements Authentication {
 
     @Override
     public Object getDetails() {
-        return null;
+        return principal;
     }
 
     @Override

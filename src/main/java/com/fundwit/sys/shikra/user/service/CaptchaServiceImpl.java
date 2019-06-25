@@ -21,13 +21,21 @@ public class CaptchaServiceImpl implements CaptchaService {
     }
 
     @Override
+    public void invalidateCaptcha(String identity) {
+        Cache cache = cacheManager.getCache(CAPTCHA_CACHE);
+        if(cache != null){
+            cache.evict(identity);
+        }
+    }
+
+    @Override
     @CachePut(CAPTCHA_CACHE)
-    public String makeCaptcha(String identifier) {
+    public String makeCaptcha(String identity) {
         return new Random().ints(6,0,10).mapToObj(i->(i&10)).map(i->i.toString()).collect(Collectors.joining(""));
     }
 
     @Override
-    public byte[] makeCaptchaImage(String principal) {
+    public byte[] makeCaptchaImage(String identity) {
         return null;
     }
 
@@ -35,7 +43,7 @@ public class CaptchaServiceImpl implements CaptchaService {
     public void checkCaptcha(String identity, String captcha) {
         Cache cache = cacheManager.getCache(CAPTCHA_CACHE);
         if(cache != null){
-            String cachedCaptcha = cacheManager.getCache(CAPTCHA_CACHE).get(identity, String.class);
+            String cachedCaptcha = cache.get(identity, String.class);
             if( cachedCaptcha != null && cachedCaptcha.equals(captcha)) {
                 cache.evict(identity);
                 return ;
