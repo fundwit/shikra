@@ -35,13 +35,6 @@ public class RegisterController {
         this.captchaService = captchaService;
     }
 
-    @PostMapping(consumes = {MediaType.TEXT_HTML_VALUE})
-    @ApiOperation(value = "show register page", notes="get register page")
-    public String goRegistery() {
-        // return "forward:index";
-        return "redirect:http://127.0.0.1:8090";
-    }
-
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE})
     @ResponseBody
     @ApiOperation(value = "user register (json)", notes="register by json request")

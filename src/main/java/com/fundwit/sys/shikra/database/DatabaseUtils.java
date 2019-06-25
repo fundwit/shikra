@@ -43,6 +43,7 @@ public class DatabaseUtils {
             throw new RuntimeException(e);
         }
     }
+
     public static void execute(String statement, DataSource dataSource) throws DataAccessException {
         Assert.notNull(dataSource, "DataSource must not be null");
         try {

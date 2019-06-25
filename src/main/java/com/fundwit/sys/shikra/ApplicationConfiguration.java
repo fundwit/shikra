@@ -25,7 +25,7 @@ public class ApplicationConfiguration {
         //    workerId  5bit
         // sequence: 12bit 4095
 
-        return new IdWorker(0, 0, 0);
+        return new IdWorker(0, 0);
     }
 
     @Bean
