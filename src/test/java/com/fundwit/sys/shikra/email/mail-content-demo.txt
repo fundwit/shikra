@@ -1,0 +1,27 @@
+Received: from DESKTOP-ABCUBR7 ([127.0.0.1])
+        by localhost
+        with SMTP (SubEthaSMTP 3.1.7) id JXH1QRA8
+        for xxx@test.com;
+        Sat, 29 Jun 2019 12:49:47 +0800 (CST)
+Date: Sat, 29 Jun 2019 12:49:47 +0800 (CST)
+From: testSender@qq.com
+To: xxx@test.com
+Message-ID: <132914853.2.1561783787999@DESKTOP-ABCUBR7>
+Subject: =?UTF-8?Q?[Shikra]_=E9=AA=8C=E8=AF=81=E7=A0=81?=
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_Part_0_1936291574.1561783787889"
+
+------=_Part_0_1936291574.1561783787889
+Content-Type: multipart/related;
+	boundary="----=_Part_1_907607755.1561783787905"
+
+------=_Part_1_907607755.1561783787905
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
+
+5oKo55qE6aqM6K+B56CB5Li677yaMDIyMDgyLCDmnInmlYjmnJ/kuLoxMOWIhumSn++8jOivt+Ww
+veW/q+mqjOivge+8gQ==
+------=_Part_1_907607755.1561783787905--
+
+------=_Part_0_1936291574.1561783787889--

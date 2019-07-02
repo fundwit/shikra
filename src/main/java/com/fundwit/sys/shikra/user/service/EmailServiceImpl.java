@@ -6,6 +6,7 @@ package com.fundwit.sys.shikra.user.service;
 
 
 import com.fundwit.sys.shikra.exception.EmailSendException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
@@ -15,12 +16,12 @@ import javax.mail.internet.MimeMessage;
 public class EmailServiceImpl implements EmailService {
 
     private JavaMailSender mailSender;
-    private String emailFrom;
+    @Value("${spring.mail.sender:xracoon@qq.com}")
+    private String sender;
 
 
     public EmailServiceImpl(JavaMailSender mailSender){
         this.mailSender = mailSender;
-        this.emailFrom = "xracoon@qq.com";
     }
 
     @Override
@@ -29,7 +30,7 @@ public class EmailServiceImpl implements EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
-            helper.setFrom(emailFrom);
+            helper.setFrom(sender);
             helper.setTo(recipients.split(",;\\s+"));
             helper.setSubject(subject);
             helper.setText(content);
