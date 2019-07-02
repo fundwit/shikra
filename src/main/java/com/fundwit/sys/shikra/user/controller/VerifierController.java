@@ -12,6 +12,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.validation.constraints.NotBlank;
@@ -33,7 +34,9 @@ public class VerifierController {
 
     @PostMapping("email")
     @ApiOperation(value = "send verify code to email")
-    public ResponseEntity<?> emailVerifyCode(@NotBlank String email) {
+    public ResponseEntity<?> emailVerifyCode(@NotBlank @RequestBody String email) {
+        // check sending limit
+
         String verifyCode = captchaService.makeCaptcha(email);
         emailService.sendEmail(email, "[Shikra] 验证码", "您的验证码为："+verifyCode+", 有效期为10分钟，请尽快验证！");
         return ResponseEntity.noContent().build();

@@ -16,14 +16,19 @@ public class MockCaptchaServiceImpl implements CaptchaService {
     private Map<String, String> caches = new LinkedHashMap<>();
 
     @Override
-    public String makeCaptcha(String identifier) {
+    public void invalidateCaptcha(String identity) {
+        caches.remove(identity);
+    }
+
+    @Override
+    public String makeCaptcha(String identity) {
         String verifyCode = new Random().ints(6,0,10).mapToObj(i->(i&10)).map(i->i.toString()).collect(Collectors.joining(""));
-        caches.put(identifier, verifyCode);
+        caches.put(identity, verifyCode);
         return verifyCode;
     }
 
     @Override
-    public byte[] makeCaptchaImage(String principal) {
+    public byte[] makeCaptchaImage(String identity) {
         return null;
     }
 
