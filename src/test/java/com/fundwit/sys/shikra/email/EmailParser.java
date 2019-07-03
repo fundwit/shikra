@@ -1,5 +1,8 @@
 package com.fundwit.sys.shikra.email;
 
+import com.fundwit.sys.shikra.email.linereader.LineReader;
+import com.fundwit.sys.shikra.email.linereader.ReaderWrapperLineReader;
+import com.fundwit.sys.shikra.email.linereader.StringListLineReader;
 import org.springframework.http.HttpHeaders;
 import org.springframework.util.MimeType;
 import org.springframework.util.StringUtils;
@@ -170,41 +173,4 @@ public class EmailParser {
 
         return headers;
     }
-
-    interface LineReader {
-        String readLine() throws IOException;
-    }
-
-    class ReaderWrapperLineReader implements LineReader {
-        private BufferedReader reader;
-        public ReaderWrapperLineReader(BufferedReader reader) {
-            this.reader = reader;
-        }
-        @Override
-        public String readLine() throws IOException {
-            return reader.readLine();
-        }
-    }
-
-    class StringListLineReader implements LineReader {
-        private List<String> lines;
-        private int index = 0;
-
-        public StringListLineReader(List<String> lines) {
-            this.lines = lines;
-        }
-
-        @Override
-        public synchronized String readLine() throws IOException {
-            if(index >= lines.size()){
-                return null;
-            }
-            return lines.get(index++);
-        }
-
-        public int getIndex() {
-            return index;
-        }
-    }
-
 }
