@@ -5,7 +5,8 @@
 package com.fundwit.sys.shikra.user.service;
 
 public interface CaptchaService {
-    String makeCaptcha(String principal);
-    byte[] makeCaptchaImage(String principal);
-    void checkCaptcha(String principal, String captcha);
+    void invalidateCaptcha(String identity);
+    String makeCaptcha(String identity);
+    byte[] makeCaptchaImage(String identity);
+    void checkCaptcha(String identity, String captcha);
 }
