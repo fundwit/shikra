@@ -12,6 +12,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -34,7 +35,7 @@ import static org.junit.Assert.assertTrue;
 })
 public class VerifierControllerTest {
     @Rule
-    public SmtpServerRule smtpServerRule = new SmtpServerRule("localhost", 25);
+    public SmtpServerRule smtpServerRule = new SmtpServerRule();
 
     protected WebTestClient client;
     @LocalServerPort
@@ -45,9 +46,12 @@ public class VerifierControllerTest {
     IdentityRepository identityRepository;
     @Autowired
     private CaptchaService captchaService;
+    @Autowired
+    private JavaMailSenderImpl javaMailSender;
 
     @Before
     public void setUp() {
+        this.javaMailSender.setPort(smtpServerRule.getPort());
         this.client = WebTestClient.bindToServer().baseUrl("http://localhost:" + this.port)
                 .responseTimeout(Duration.ofMinutes(5))
                 //.defaultHeader("")
