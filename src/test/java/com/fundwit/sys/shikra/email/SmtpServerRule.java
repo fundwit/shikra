@@ -4,6 +4,8 @@ import org.junit.rules.ExternalResource;
 import org.subethamail.smtp.helper.SimpleMessageListenerAdapter;
 import org.subethamail.smtp.server.SMTPServer;
 
+import java.io.IOException;
+import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +16,14 @@ public class SmtpServerRule extends ExternalResource {
     private SMTPServer smtpServer;
     private List<RawEmailMessage> receivedMails;
 
+    public SmtpServerRule() {
+        this.hostname = "127.0.0.1";
+        try {
+            this.port = new ServerSocket(0).getLocalPort();
+        } catch (IOException e) {
+            throw new RuntimeException("failed to get a free local port", e);
+        }
+    }
     public SmtpServerRule(String hostname, int port) {
         this.hostname = hostname;
         this.port = port;
