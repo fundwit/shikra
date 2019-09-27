@@ -82,7 +82,7 @@ public class BasicAuthTest {
 
         client.get().uri("/users/self").header(HttpHeaders.AUTHORIZATION, "Basic "+header).exchange()
                 .expectStatus().isOk()
-                // .expectHeader().valueEquals("user", registerRequest.getUsername())
+                .expectHeader().valueEquals("user", registerRequest.getUsername())
                 .expectBody(User.class).value(user -> {
             assertNotNull(user);
             assertNotNull(user.getId());

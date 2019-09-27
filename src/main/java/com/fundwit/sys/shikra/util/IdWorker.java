@@ -5,11 +5,11 @@
 package com.fundwit.sys.shikra.util;
 
 public class IdWorker {
-    private long workerId;
-    private long dataCenterId;
-    private long sequence;
+    private int workerId;
+    private int dataCenterId;
+    private int sequence;
 
-    public IdWorker(long workerId, long dataCenterId, long sequence){
+    public IdWorker(int workerId, int dataCenterId){
         // sanity check for workerId
         if (workerId > maxWorkerId || workerId < 0) {
             throw new IllegalArgumentException(String.format("worker Id can't be greater than %d or less than 0",maxWorkerId));
@@ -22,21 +22,21 @@ public class IdWorker {
 
         this.workerId = workerId;
         this.dataCenterId = dataCenterId;
-        this.sequence = sequence;
+        this.sequence = 0;
     }
 
     private long twepoch = 1288834974657L;
 
-    private long workerIdBits = 4L;  //16
-    private long dataCenterIdBits = 5L; //32
+    private int workerIdBits = 4;  //16
+    private int dataCenterIdBits = 5; //32
     private long maxWorkerId = -1L ^ (-1L << workerIdBits);
     private long maxDataCenterId = -1L ^ (-1L << dataCenterIdBits);
-    private long sequenceBits = 12L; // 4096
+    private int sequenceBits = 12; // 4096
 
     private long workerIdShift = sequenceBits;
     private long dataCenterIdShift = sequenceBits + workerIdBits;
     private long timestampLeftShift = sequenceBits + workerIdBits + dataCenterIdBits;  // 42 = 64-1-5-4-12
-    private long sequenceMask = -1L ^ (-1L << sequenceBits);
+    private int sequenceMask = -1 ^ (-1 << sequenceBits);
 
     private long lastTimestamp = -1L;
 

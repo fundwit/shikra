@@ -8,8 +8,8 @@ import org.springframework.context.annotation.PropertySource;
 
 @Configuration
 public class ActuatorConfiguration {
-    @ConditionalOnResource(resources={"file:buildInfo.properties"})
-    @PropertySource({"file:buildInfo.properties"})
+    @ConditionalOnResource(resources={"${info.build.path:file:buildInfo.properties}"})
+    @PropertySource({"${info.build.path:file:buildInfo.properties}"})
     public static class FileBuildInfoProperties {
         @Bean
         @Primary

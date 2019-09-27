@@ -12,7 +12,4 @@ public class CaptchaValidationException extends RuntimeException {
     public CaptchaValidationException(String message) {
         super(message);
     }
-    public CaptchaValidationException(String message, Throwable cause) {
-        super(message, cause);
-    }
 }
