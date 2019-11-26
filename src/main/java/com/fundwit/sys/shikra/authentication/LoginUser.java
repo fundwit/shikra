@@ -10,7 +10,6 @@ public class LoginUser implements Serializable {
     private Long id;
     private String username;
     private String nickname;
-    private String email;
 
     public String getUsername() {
         return username;
@@ -26,14 +25,6 @@ public class LoginUser implements Serializable {
 
     public void setNickname(String nickname) {
         this.nickname = nickname;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public Long getId() {

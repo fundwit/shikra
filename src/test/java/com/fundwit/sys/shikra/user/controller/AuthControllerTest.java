@@ -15,7 +15,7 @@ import static com.fundwit.sys.shikra.user.controller.AuthController.AUTH_LOGIN_E
 
 @RunWith(SpringRunner.class)
 @TestPropertySource(properties = {
-        "auth.form.endpoint=localhost:8081"
+        "auth.form.endpoint=http://localhost:8081"
 })
 @ImportAutoConfiguration(WebTestClientAutoConfiguration.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)

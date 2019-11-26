@@ -12,7 +12,6 @@ public class MockBasicAuthenticationProvider implements AuthenticationProvider {
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         LoginUser user = new LoginUser();
         user.setId(0L);
-        user.setEmail("mockUser@test.com");
         user.setUsername("mockUser");
         user.setNickname("Mock User");
         return new ApplicationAuthentication(user, null);

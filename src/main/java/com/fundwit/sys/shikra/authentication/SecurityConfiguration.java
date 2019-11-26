@@ -67,6 +67,7 @@ public class SecurityConfiguration {
 
     private void addBasicAuthentication(ServerHttpSecurity http, AuthenticationManager authenticationManager){
         AuthenticationWebFilter authenticationFilter = new AuthenticationWebFilter(new ReactiveAuthenticationManagerAdapter(authenticationManager));
+
         authenticationFilter.setServerAuthenticationConverter(new ServerHttpBasicAuthenticationConverter());
         authenticationFilter.setSecurityContextRepository(serverSecurityContextRepository());
         authenticationFilter.setAuthenticationSuccessHandler(new JwtTokenSignAuthenticationSuccessHandler());

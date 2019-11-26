@@ -69,9 +69,10 @@ public class UserServiceImpl implements UserService{
 
         LoginUser loginUser = new LoginUser();
         loginUser.setId(user.getId());
-        loginUser.setEmail(user.getEmail());
         loginUser.setUsername(user.getUsername());
         loginUser.setNickname(user.getNickname());
+
+        // TODO update token
 
         return Mono.just(loginUser);
     }
