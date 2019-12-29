@@ -8,20 +8,17 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 public class ServerHttpBearerAuthenticationConverter implements ServerAuthenticationConverter {
-    public static final String BASIC = "Bearer ";
+    public static final String TOKEN_TYPE = "Bearer ";
 
     @Override
     public Mono<Authentication> convert(ServerWebExchange exchange) {
         ServerHttpRequest request = exchange.getRequest();
 
         String authorization = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-        if (authorization == null || !authorization.toLowerCase().startsWith("bearer ")) {
+        if (authorization == null || !authorization.toLowerCase().startsWith(TOKEN_TYPE.toLowerCase())) {
             return Mono.empty();
         }
 
-        String credentials = authorization.length() <= BASIC.length() ?
-                "" : authorization.substring(BASIC.length());
-
-        return Mono.just(new BearerAuthenticationToken(credentials));
+        return Mono.just(new BearerAuthenticationToken(authorization.substring(TOKEN_TYPE.length())));
     }
 }

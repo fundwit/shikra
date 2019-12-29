@@ -39,7 +39,7 @@ public class BearerAuthenticationToken implements Authentication {
 
     @Override
     public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
-
+        throw new IllegalArgumentException();
     }
 
     @Override
