@@ -21,6 +21,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.Base64Utils;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
@@ -161,13 +163,14 @@ public class AuthControllerTest {
 
     @Test
     public void testFailedAccessWithExpiredToken() {
-        when(properties.getExpiration()).thenReturn(Duration.ofSeconds(1));
+        when(properties.getExpiration()).thenReturn(Duration.ofMillis(1500));
 
         String username = "testFailedAccessWithExpiredToken";
         String password = "testPassword";
         userHelper.registerUser(username, password).block();
 
         String tokenCookieName = "auth_token=";
+        List<String> tokens = new ArrayList<>();
         // login in
         client.post().uri(authLoginPath)
                 .header(HttpHeaders.AUTHORIZATION, "basic "+ Base64Utils.encodeToString((username+":"+password).getBytes()))
@@ -176,26 +179,27 @@ public class AuthControllerTest {
                 .expectStatus().isFound()
                 .expectHeader().valueEquals(HttpHeaders.LOCATION, "http://localhost:8081")
                 .expectHeader().value(HttpHeaders.SET_COOKIE, v-> {
-            assertTrue(v.startsWith(tokenCookieName));
-            int startIndex = v.indexOf(tokenCookieName)+tokenCookieName.length();
-            int endIndex = v.indexOf(";", startIndex);
-            String token = endIndex > 0 ? v.substring(startIndex, endIndex) : v.substring(startIndex);
-
-            client.get().uri("/users/self")
-                    .header(HttpHeaders.AUTHORIZATION, "Bearer "+token)
-                    .exchange()
-                    .expectStatus().isOk();
-
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-
-            client.get().uri("/users/self")
-                    .header(HttpHeaders.AUTHORIZATION, "Bearer "+token)
-                    .exchange()
-                    .expectStatus().isUnauthorized();
+                    assertTrue(v.startsWith(tokenCookieName));
+                    int startIndex = v.indexOf(tokenCookieName)+tokenCookieName.length();
+                    int endIndex = v.indexOf(";", startIndex);
+                    String token = endIndex > 0 ? v.substring(startIndex, endIndex) : v.substring(startIndex);
+                    tokens.add(token);
         });
+
+        client.get().uri("/users/self")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer "+tokens.get(0))
+                .exchange()
+                .expectStatus().isOk();
+
+        try {
+            Thread.sleep(1500);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        client.get().uri("/users/self")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer "+tokens.get(0))
+                .exchange()
+                .expectStatus().isUnauthorized();
     }
 }
