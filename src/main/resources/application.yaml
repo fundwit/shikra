@@ -4,11 +4,16 @@ server:
     context-path: /
 
 auth:
+  login:
+    path: /auth/login
   channels:
     basic:
       realm: Shikra
 
 spring:
+  test:
+    webtestclient:
+      timeout: 5m
   jackson:
     serialization:
       indent_output: false

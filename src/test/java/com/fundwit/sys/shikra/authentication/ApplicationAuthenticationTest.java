@@ -16,14 +16,12 @@ public class ApplicationAuthenticationTest {
     public void test(){
         String username = "test-user";
         String nickname = "TestUser";
-        String email = "test-user@test.com";
         long id = new IdWorker(0,0).nextId();
         List<GrantedAuthority> grantedAuthorityList = Arrays.asList(new SimpleGrantedAuthority("admin"));
 
         LoginUser loginUser = new LoginUser();
         loginUser.setUsername(username);
         loginUser.setNickname(nickname);
-        loginUser.setEmail(email);
         loginUser.setId(id);
 
         ApplicationAuthentication applicationAuthentication = new ApplicationAuthentication(loginUser, grantedAuthorityList);
@@ -33,7 +31,6 @@ public class ApplicationAuthenticationTest {
         assertEquals(loginUser, applicationAuthentication.getDetails());
         assertEquals(grantedAuthorityList, applicationAuthentication.getAuthorities());
         assertEquals(null, applicationAuthentication.getCredentials());
-        assertEquals(email, applicationAuthentication.getPrincipal().getEmail());
         assertEquals(nickname, applicationAuthentication.getPrincipal().getNickname());
 
         try{

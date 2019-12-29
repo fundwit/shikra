@@ -1,5 +1,6 @@
 package com.fundwit.sys.shikra.authentication;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.h2.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,7 +18,10 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.DelegatingServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
-import org.springframework.security.web.server.authentication.*;
+import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
+import org.springframework.security.web.server.authentication.HttpBasicServerAuthenticationEntryPoint;
+import org.springframework.security.web.server.authentication.HttpStatusServerEntryPoint;
+import org.springframework.security.web.server.authentication.ServerAuthenticationEntryPointFailureHandler;
 import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
 import org.springframework.security.web.server.util.matcher.MediaTypeServerWebExchangeMatcher;
@@ -31,9 +35,18 @@ import java.util.Optional;
 public class SecurityConfiguration {
     @Autowired
     private List<AuthenticationProvider> authenticationProviders;
+    @Autowired
+    private ObjectMapper objectMapper;
+    @Autowired
+    private JwtServiceProperties jwtProperties;
 
     @Value("${auth.channels.basic.realm}")
     private String basicAuthRealm;
+
+    @Value("${auth.login.path}")
+    public String authLoginPath;
+    @Value("${auth.form.endpoint:/}")
+    private String formEndPoint;
 
     @Bean
     public ReactiveAuthenticationManagerAdapter reactiveAuthenticationManagerAdapter(ProviderManager providerManager){
@@ -67,9 +80,21 @@ public class SecurityConfiguration {
 
     private void addBasicAuthentication(ServerHttpSecurity http, AuthenticationManager authenticationManager){
         AuthenticationWebFilter authenticationFilter = new AuthenticationWebFilter(new ReactiveAuthenticationManagerAdapter(authenticationManager));
-        authenticationFilter.setServerAuthenticationConverter(new ServerHttpBasicAuthenticationConverter());
+
+        // requires authentication:
+        //     POST authLoginPath
+        // or  AUTHORIZATION header is exist
+        RequiresAuthenticationMatcher requiresAuthenticationMatcher = new RequiresAuthenticationMatcher(authLoginPath);
+        authenticationFilter.setRequiresAuthenticationMatcher(requiresAuthenticationMatcher);
+
+        authenticationFilter.setServerAuthenticationConverter(new AuthorizationHeaderServerAuthenticationConverter()); // support basic and bearer authentication
         authenticationFilter.setSecurityContextRepository(serverSecurityContextRepository());
-        authenticationFilter.setAuthenticationSuccessHandler(new JwtTokenSignAuthenticationSuccessHandler());
+
+        // success handling:
+        //    POST authLoginPath: set token, send response directly
+        //    other request: set token, continue filter chain
+        authenticationFilter.setAuthenticationSuccessHandler(new JwtTokenSignAuthenticationSuccessHandler(
+                requiresAuthenticationMatcher, objectMapper, jwtProperties, formEndPoint));
 
         ServerAuthenticationEntryPoint authenticationEntryPoint = serverAuthenticationEntryPoint();
         authenticationFilter.setAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler(authenticationEntryPoint));

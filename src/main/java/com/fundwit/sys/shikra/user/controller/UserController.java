@@ -7,7 +7,6 @@ import com.fundwit.sys.shikra.user.pojo.UserAccountInfo;
 import com.fundwit.sys.shikra.user.service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -24,13 +23,8 @@ public class UserController {
     @GetMapping("/self")
     public Mono<User> getUserSelf(){
         return ReactiveSecurityContextHolder.getContext()
-                .map(sc-> sc!=null?sc.getAuthentication():null)
-                .map(authentication -> {
-                    if(authentication==null){
-                        throw new AuthenticationServiceException("unauthenticated");
-                    }
-                    return ((LoginUser)authentication.getPrincipal()).getId();
-                }).map(uid->userService.findUser(uid).block());
+                .map(sc -> ((LoginUser)sc.getAuthentication().getPrincipal()).getId())
+                .flatMap(uid->userService.findUser(uid));
     }
 
     @GetMapping("/{userId}")
