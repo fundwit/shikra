@@ -1,6 +1,5 @@
 package com.fundwit.sys.shikra.authentication;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
 import org.springframework.security.core.Authentication;
@@ -32,7 +31,7 @@ public class JwtService {
                         .setExpiration(new Date(System.currentTimeMillis() + properties.getExpiration().toMillis()))
                         .signWith(SignatureAlgorithm.HS512, JWT_SIGN_SECRET)
                         .compact();
-            } catch (JsonProcessingException e) {
+            } catch (Exception e) {
                 throw new TokenGenerateException(e);
             }
         }else{
@@ -41,7 +40,11 @@ public class JwtService {
     }
 
     public LoginUser verifyToken(String token) {
-        return Jwts.parser().setSigningKey(JWT_SIGN_SECRET).parse(token, jwtHandler);
+        try {
+            return Jwts.parser().setSigningKey(JWT_SIGN_SECRET).parse(token, jwtHandler);
+        }catch (Exception e){
+            throw new TokenVerifyException("failed to parse jws: "+token, e);
+        }
     }
 
     public static class LoginUserJwtHandler extends JwtHandlerAdapter<LoginUser> {
@@ -55,7 +58,7 @@ public class JwtService {
                 Claims claims = (Claims) jws.getBody();
                 return objectMapper.readValue(claims.getSubject(), LoginUser.class);
             } catch (IOException e) {
-                throw new MalformedJwtException(String.valueOf(jws.getBody()));
+                throw new RuntimeException("failed to parse jws body: " + jws.getBody(), e);
             }
         }
     }
