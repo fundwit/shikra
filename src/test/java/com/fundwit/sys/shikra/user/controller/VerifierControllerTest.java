@@ -4,6 +4,7 @@ import com.fundwit.sys.shikra.email.RawEmailMessage;
 import com.fundwit.sys.shikra.email.SmtpServerRule;
 import com.fundwit.sys.shikra.user.persistence.repository.IdentityRepository;
 import com.fundwit.sys.shikra.user.persistence.repository.UserRepository;
+import com.fundwit.sys.shikra.user.pojo.VerifyCodeRequest;
 import com.fundwit.sys.shikra.user.service.CaptchaService;
 import org.junit.Before;
 import org.junit.Rule;
@@ -12,6 +13,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.MediaType;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -60,7 +62,11 @@ public class VerifierControllerTest {
 
     @Test
     public void testVerifier() throws IOException, MessagingException {
-        client.post().uri("/verifier/email").syncBody("xxx@test.com").exchange()
+        VerifyCodeRequest request = new VerifyCodeRequest();
+        request.setEmail("xxx@test.com");
+        client.post().uri("/verifier/email")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .syncBody(request).exchange()
                 .expectStatus().isNoContent();
 
         assertEquals(1, smtpServerRule.getReceivedMails().size());
