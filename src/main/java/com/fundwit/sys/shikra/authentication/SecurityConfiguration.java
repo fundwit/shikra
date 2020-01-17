@@ -73,6 +73,7 @@ public class SecurityConfiguration {
                         "/error")
                 .permitAll()
                 .anyExchange().authenticated().and()
+                 .cors().disable()
                 .csrf().disable();
          this.addBasicAuthentication(http, providerManager());
          return http.build();
